@@ -1,0 +1,147 @@
+PROJEKT ZALICZENIOWY: Analiza emisji CO2 i zuzycia energii na swiecie
+
+Autor: Jakub Adwentowski / Robert Dzienio
+Zrodlo danych: Our World in Data (owid-co2-data.csv)
+
+1. Charakterystyka zbioru danych
+- Zbior danych pochodzi z projektu Our World in Data i zawiera informacje dotyczace emisji CO2, zuzycia energii oraz wskaznikow ekonomicznych dla krajow na przestrzeni lat.
+- Liczba rekordow w danych surowych: 50411
+- Liczba kolumn: 79
+- Zakres lat: 1750-2024
+- Liczba krajow po odfiltrowaniu agregatow: 218
+
+Struktura danych:
+- Dane maja strukture tabelaryczna (DataFrame), gdzie kazdy rekord odpowiada krajowi w danym roku.
+- Kluczowe kolumny to: country, year oraz zmienne opisujace emisje i gospodarke.
+
+Typy atrybutow:
+- Numeryczne: co2, co2_per_capita, gdp, population, energy_per_capita, energy_per_gdp
+- Kategoryczne: country, iso_code
+- Czasowe: year
+- Binarne (posrednio): obecnosc / brak danych (NaN)
+
+Potencjalne zastosowanie zbioru danych:
+- analiza zaleznosci miedzy wzrostem gospodarczym a emisja CO2,
+- ocena polityki klimatycznej panstw,
+- segmentacja krajow wedlug poziomu emisji i zuzycia energii,
+- wspomaganie decyzji strategicznych dotyczacych transformacji energetycznej,
+- budowa modeli predykcyjnych dotyczacych emisji w przyszlosci.
+
+2. Wstepne przetwarzanie danych
+- Usunieto agregaty regionalne i rekordy typu OWID.
+- Liczba duplikatow country+year: 0
+- Zakres analizy ograniczono do lat 1990-2023.
+- Snapshot dla analiz przekrojowych: 2022
+- Liczba krajow w snapshot z podstawowymi danymi: 164
+
+Braki danych w snapshot 2022 (wybrane kolumny):
+gas_co2              89
+coal_co2             81
+gdp                  54
+energy_per_gdp       54
+energy_per_capita    14
+cement_co2            8
+oil_co2               5
+co2_per_capita        5
+co2                   3
+population            2
+
+Transformacje danych:
+- Obliczono GDP per capita.
+- Zastosowano log10 dla GDP per capita oraz CO2 per capita.
+- Zastosowano dyskretyzacje emisji per capita wedlug prostych progow eksperckich.
+
+Liczba krajow wedlug kategorii emisji:
+emisja_kategoria
+niskie (<2t)             67
+srednie (2-5t)           49
+wysokie (5-10t)          31
+bardzo wysokie (>10t)    17
+
+3. Analiza danych
+Uzasadnienie wyboru metod:
+- Regresja liniowa: do analizy trendu globalnego emisji CO2 oraz zaleznosci PKB-emisje.
+- Korelacja: do identyfikacji silnych zaleznosci miedzy zmiennymi.
+- K-Means: do segmentacji krajow o podobnym profilu energetycznym.
+- PCA: do redukcji wymiarowosci i wizualizacji klastrow.
+
+Globalny trend emisji CO2:
+- Nachylenie trendu liniowego: 539.04 Mt CO2 / rok
+- R^2 modelu: 0.961
+
+Regresja CO2 per capita vs PKB per capita:
+- Wspolczynnik regresji log-log: 1.045
+- R^2 modelu: 0.823
+
+Silne korelacje z CO2 per capita:
+- energy_per_capita: r = 0.83
+
+Grupowanie K-Means:
+- Liczba klastrow: 4
+- Rozklad krajow na klastry:
+klaster
+0     3
+1    78
+2    73
+3    10
+
+PCA:
+- PC1 wyjasnia 70.4% wariancji
+- PC2 wyjasnia 19.1% wariancji
+- Lacznie: 89.6% wariancji
+
+4. Wizualizacja danych
+- Przygotowano wykres liniowy, wykres slupkowy, histogram, wykres rozrzutu, heatmape korelacji oraz wizualizacje PCA.
+- Dodatkowo wygenerowano prosty dashboard HTML offline: dashboard_offline.html.
+- Dashboard umozliwia interaktywne przegladanie danych (hover, zoom, ukrywanie serii w legendzie) i dziala bez internetu.
+
+5. Interpretacja wyników i wnioski
+
+Wnioski z analizy trendów (regresja liniowa)
+- Globalne emisje CO2 rosły średnio o 539.04 Mt rocznie w latach 1990-2023.
+- Model liniowy wyjaśnia 0.961% wariancji, jednak widoczne są
+  okresy spowolnienia (kryzys 2008-2009, pandemia 2020) oraz powrotu do wzrostu.
+- Wzrost emisji napędzany jest przede wszystkim przez Chiny i Indie.
+
+Wnioski z analizy korelacji
+- Silna dodatnia korelacja emisji per capita z PKB per capita sugeruje,
+  że zamożniejsze kraje emitują więcej, choć istnieją wyjątki (Norwegia, Szwecja).
+- Korelacja z udziałem OZE jest ujemna - większy udział energii odnawialnej
+  wiąże się z niższymi emisjami per capita.
+- Emisje z węgla wykazują najsilniejszą korelację z łącznymi emisjami krajowymi.
+
+Wnioski z grupowania K-Means
+Zidentyfikowano 4 charakterystyczne grupy krajów:
+- Klaster 0: Kraje rozwijające się - niskie emisje, niski PKB, niski udział OZE
+- Klaster 1: Bogate kraje z dużym udziałem OZE - niskie/średnie emisje per capita
+- Klaster 2: Kraje petro-stanu - bardzo wysokie emisje i PKB per capita
+- Klaster 3: Duże gospodarki uprzemysłowione - wysokie emisje łączne
+
+Ograniczenia metod
+- Regresja liniowa upraszcza nielinearny charakter zmian emisji.
+- K-Means zakłada sferyczny kształt klastrów - może nie uchwycić
+  wszystkich złożonych wzorców w danych wielowymiarowych.
+- Dane historyczne starsze niż 1950 mają niższe pokrycie i jakość.
+- Snapshot przekrojowy (2022) nie uwzglednia dynamiki zmian w czasie.
+- Brak uwzglednienia czynnikow politycznych i technologicznych.
+
+Potencjalne zastosowania wyników
+- Identyfikacja krajów, które „odstają" od trendu regresji - czyli tych,
+  które osiągają niskie emisje mimo wysokiego PKB (benchmarki dekarbonizacji).
+- Segmentacja krajów wg klastrów może wspierać projektowanie zróżnicowanej
+  polityki klimatycznej w negocjacjach międzynarodowych.
+- Model regresji może posłużyć do prognozowania przyszłych emisji
+  przy założeniu kontynuacji dotychczasowych trendów.
+
+6. Pliki wynikowe
+- 01_trend_globalny.png
+- 02_top10_emitenci.png
+- 03_histogram_per_capita.png
+- 04_scatter_co2_gdp.png
+- 05_heatmap_korelacji.png
+- 06_trendy_krajow.png
+- 07_kmeans_pca.png
+- 08_energy_gdp_vs_co2.png
+- 09_struktura_emisji.png
+- dashboard_offline.html
+- sprawozdanie.txt
