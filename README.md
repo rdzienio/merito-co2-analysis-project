@@ -81,6 +81,7 @@ Zastosowane metody:
 
 Dostępna jest również wersja uproszczonego dashboardu:
 - plik: `dashboard.html`
+-strona https://rdzienio.github.io/merito-co2-analysis-project
 
 ---
 
